@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Toko Olahraga • E‑Commerce Satu File</title>
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --surface:#111827;     /* gray-900 */
+      --muted:#1f2937;       /* gray-800 */
+      --card:#0b1220;        /* dark card */
+      --text:#e5e7eb;        /* gray-200 */
+      --text-dim:#9ca3af;    /* gray-400 */
+      --primary:#22c55e;     /* emerald-500 */
+      --primary-600:#16a34a; 
+      --accent:#38bdf8;      /* sky-400 */
+      --danger:#ef4444;      /* red-500 */
+      --warning:#f59e0b;     /* amber-500 */
+      --radius:18px;
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,var(--bg),#060a15);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,'Helvetica Neue','Apple Color Emoji','Segoe UI Emoji',sans-serif}
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block;border-radius:14px}
+    .container{max-width:1100px;margin:auto;padding:24px}
+
+    /* NAV */
+    .nav{position:sticky;top:0;z-index:50;background:rgba(8,13,24,.75);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+    .nav-inner{display:flex;align-items:center;gap:16px;justify-content:space-between;padding:12px 24px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800}
+    .brand .logo{width:34px;height:34px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--primary));display:grid;place-items:center;color:#001b22;font-weight:900;box-shadow:var(--shadow)}
+    .menu{display:flex;gap:14px;align-items:center}
+    .menu a{padding:10px 14px;border-radius:12px;color:var(--text-dim)}
+    .menu a:hover{background:var(--muted);color:var(--text)}
+    .cart-btn{position:relative;padding:10px 14px;border-radius:12px;background:var(--primary);color:#03150a;font-weight:700;border:none;cursor:pointer}
+    .cart-count{position:absolute;top:-6px;right:-6px;background:#03150a;color:var(--primary);font-size:12px;padding:2px 7px;border-radius:14px;border:1px solid #12351f}
+
+    /* HERO */
+    .hero{display:grid;grid-template-columns:1.2fr .8fr;gap:28px;align-items:center;padding:42px 24px}
+    .hero h1{font-size:clamp(28px,4.5vw,48px);line-height:1.1;margin:0 0 10px}
+    .hero p{color:var(--text-dim);margin:0 0 18px}
+    .hero .cta{display:flex;gap:12px}
+    .btn{padding:12px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:var(--muted);color:var(--text);cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--primary);color:#03150a;border:none}
+    .btn.ghost{background:transparent}
+    .pill{display:inline-block;padding:6px 12px;border-radius:999px;background:rgba(56,189,248,.12);color:var(--accent);font-weight:700;border:1px solid rgba(56,189,248,.3);margin-bottom:8px}
+    .hero-card{background:radial-gradient(1200px 600px at 70% -10%,rgba(56,189,248,.15),transparent),
+               radial-gradient(900px 500px at -10% 120%,rgba(34,197,94,.18),transparent),var(--card);padding:20px;border-radius:var(--radius);box-shadow:var(--shadow)}
+
+    /* SECTION */
+    .section-title{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px}
+    .section-title h2{margin:0}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    @media (max-width:980px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:560px){.grid{grid-template-columns:1fr}.nav-inner{flex-wrap:wrap;gap:10px}}
+
+    /* CARD */
+    .card{background:linear-gradient(180deg,#0c1426,#0a1221);border:1px solid rgba(255,255,255,.06);border-radius:18px;overflow:hidden;display:flex;flex-direction:column}
+    .card-body{padding:14px;display:flex;flex-direction:column;gap:8px}
+    .title{font-weight:700}
+    .price{font-weight:800;color:#d1fae5}
+    .muted{color:var(--text-dim);font-size:14px}
+    .qty{display:flex;align-items:center;gap:8px;margin-top:auto}
+    .qty button{width:32px;height:32px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);font-weight:800;cursor:pointer}
+    .add{margin-left:auto}
+
+    /* CART PANEL */
+    .cart-panel{position:fixed;inset:0 0 0 auto;max-width:420px;width:100%;transform:translateX(100%);transition:.3s ease;box-shadow:var(--shadow);background:linear-gradient(180deg,#0c1426,#0a1221);border-left:1px solid rgba(255,255,255,.08);z-index:80;display:flex;flex-direction:column}
+    .cart-panel.open{transform:translateX(0)}
+    .cart-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.08)}
+    .cart-body{flex:1;overflow:auto;padding:14px}
+    .cart-item{display:grid;grid-template-columns:64px 1fr auto;gap:10px;align-items:center;padding:10px;border:1px solid rgba(255,255,255,.06);border-radius:14px;margin-bottom:10px;background:#0a1323}
+    .cart-item .ci-title{font-weight:700}
+    .cart-item .ci-actions{display:flex;align-items:center;gap:6px}
+    .cart-item .ci-actions button{width:28px;height:28px;border-radius:10px;border:1px solid rgba(255,255,255,.1);background:transparent;color:var(--text);cursor:pointer}
+    .cart-footer{padding:14px;border-top:1px solid rgba(255,255,255,.08);background:#0a1323;display:grid;gap:10px}
+    .total-line{display:flex;align-items:center;justify-content:space-between}
+    .notice{font-size:12px;color:var(--text-dim)}
+    .empty{color:var(--text-dim);text-align:center;padding:30px}
+
+    /* CHECKOUT SECTION */
+    #checkout{scroll-margin-top:90px}
+    .checkout{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}
+    @media (max-width:900px){.checkout{grid-template-columns:1fr}}
+    .panel{background:linear-gradient(180deg,#0c1426,#0a1221);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:18px}
+    .field{display:grid;gap:6px;margin-bottom:12px}
+    .field input,.field textarea,.field select{background:#0a1323;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px;color:var(--text)}
+    .order-summary .row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(255,255,255,.08)}
+    .badge{display:inline-block;padding:4px 8px;border-radius:999px;background:rgba(34,197,94,.15);color:var(--primary);border:1px solid rgba(34,197,94,.35);font-size:12px;font-weight:700}
+    .success{border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.08);color:#d1fae5;padding:12px;border-radius:12px}
+  </style>
+</head>
+<body>
+  <!-- NAV -->
+  <nav class="nav">
+    <div class="nav-inner container">
+      <a href="#beranda" class="brand">
+        <div class="logo">S</div>
+        <span>AryaafandiShop</span>
+      </a>
+      <div class="menu">
+        <a href="#beranda">Beranda</a>
+        <a href="#produk">Produk</a>
+        <a href="#kontak">Kontak</a>
+        <a href="#tentang">Tentang</a>
+      </div>
+      <button class="cart-btn" id="openCart">Keranjang <span class="cart-count" id="cartCount">0</span></button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <header id="beranda" class="container hero">
+    <div>
+      <span class="pill">Gratis ongkir untuk pesan ≥ Rp250.000</span>
+      <h1>Perlengkapan Olahraga Terbaik<br/>Harga Hemat, Kualitas Mantap</h1>
+      <p>Sepatu lari, jersey bola, bola basket, hingga skipping rope — semua ada. Mulai gaya hidup sehatmu hari ini.</p>
+      <div class="cta">
+        <a class="btn primary" href="#produk">Belanja Sekarang</a>
+        <button class="btn ghost" id="openCart2">Lihat Keranjang</button>
+      </div>
+    </div>
+    <div class="hero-card">
+      <img alt="etalase produk" src="https://i.pinimg.com/736x/28/80/3c/28803c032abb3c46f12a0a45630b3a39.jpg"/>
+    </div>
+  </header>
+
+  <!-- PRODUK -->
+  <section id="produk" class="container" aria-labelledby="produk-title">
+    <div class="section-title">
+      <h2 id="produk-title">Produk Pilihan</h2>
+      <span class="badge" id="badgeTotal">Total: Rp0</span>
+    </div>
+    <div class="grid" id="productGrid"><!-- generated by JS --></div>
+  </section>
+
+  <!-- TENTANG TOKO -->
+<section id="tentang" class="container" aria-labelledby="tentang-title">
+  <div class="section-title">
+    <h2 id="tentang-title">Tentang Toko</h2>
+  </div>
+  <div class="panel">
+    <p><strong>AryaafandiShop</strong> adalah toko perlengkapan olahraga modern yang menyediakan sepatu, bola, jersey, alat fitness, dan perlengkapan lainnya dengan harga terjangkau.</p>
+    <p>Kami berkomitmen untuk mendukung gaya hidup sehat pelanggan dengan produk berkualitas, layanan ramah, dan promo menarik.</p>
+  </div>
+</section>
+
+  <!-- CHECKOUT -->
+  <section id="checkout" class="container" aria-labelledby="checkout-title">
+    <div class="section-title">
+      <h2 id="checkout-title">Checkout</h2>
+      <span class="muted">Lengkapi data di bawah untuk menyelesaikan pesanan.</span>
+    </div>
+    <div class="checkout">
+      <form id="checkoutForm" class="panel" autocomplete="on">
+        <h3>Data Pemesan</h3>
+        <div class="field">
+          <label for="nama">Nama Lengkap</label>
+          <input id="nama" name="nama" placeholder="Nama Anda" required />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="nama@email.com" required />
+        </div>
+        <div class="field">
+          <label for="telp">No. Telepon / WhatsApp</label>
+          <input id="telp" name="telp" type="tel" placeholder="08xxxxxxxxxx" required />
+        </div>
+        <div class="field">
+          <label for="alamat">Alamat Lengkap</label>
+          <textarea id="alamat" name="alamat" rows="3" placeholder="Jalan, Kelurahan, Kecamatan, Kota, Kode Pos" required></textarea>
+        </div>
+        <div class="field">
+          <label for="metode">Metode Pembayaran</label>
+          <select id="metode" name="metode" required>
+            <option value="">Pilih metode</option>
+            <option>COD (Bayar di Tempat)</option>
+            <option>Transfer Bank</option>
+            <option>QRIS</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="catatan">Catatan (opsional)</label>
+          <textarea id="catatan" name="catatan" rows="2" placeholder="Mis: warna, ukuran, patokan alamat"></textarea>
+        </div>
+        <button class="btn primary" type="submit">Buat Pesanan</button>
+        <p class="notice">Dengan menekan "Buat Pesanan", Anda menyetujui syarat & ketentuan. Ini adalah demo — tidak ada pembayaran nyata.</p>
+        <div id="orderResult" style="margin-top:10px"></div>
+      </form>
+      
+
+      <div class="panel order-summary" id="orderSummary">
+        <h3>Ringkasan Pesanan</h3>
+        <div id="summaryItems"><p class="muted">Keranjang masih kosong.</p></div>
+        <div class="row"><strong>Subtotal</strong><span id="sumSubtotal">Rp0</span></div>
+        <div class="row"><span>Ongkir (estimasi)</span><span id="sumShip">Rp0</span></div>
+        <div class="row" style="font-weight:800"><span>Total</span><span id="sumTotal">Rp0</span></div>
+        <p class="notice">Ongkir otomatis Rp0 untuk pesanan ≥ Rp250.000.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KONTAK -->
+  <section id="kontak" class="container" aria-labelledby="kontak-title">
+    <div class="section-title">
+      <h2 id="kontak-title">Kontak</h2>
+      <span class="muted">Butuh bantuan? Hubungi kami.</span>
+    </div>
+    <div class="panel">
+      <p>Email: support@Aryaafandi_09 • WhatsApp: 0898-9836-9272</p>
+      <p class="notice">Ini situs demo satu file. Data tidak dikirim ke server.</p>
+    </div>
+  </section>
+
+  <!-- CART PANEL (SLIDE OVER) -->
+  <aside class="cart-panel" id="cartPanel" aria-label="Keranjang Belanja" aria-hidden="true">
+    <div class="cart-header">
+      <strong>Keranjang</strong>
+      <button class="btn" id="closeCart">Tutup</button>
+    </div>
+    <div class="cart-body" id="cartItems"></div>
+    <div class="cart-footer">
+      <div class="total-line"><span>Subtotal</span><strong id="cartSubtotal">Rp0</strong></div>
+      <button class="btn primary" id="toCheckout">Checkout Sekarang</button>
+      <p class="notice">Tip: Anda juga bisa checkout di bagian bawah halaman.</p>
+    </div>
+  </aside>
+
+  <script>
+    // ====== DATA PRODUK ======
+    const PRODUCTS = [
+      {id:'p1', name:'Sepatu Lari Breeze X', price: 999000, img:'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p2', name:'Bola Basket Street', price: 189000, img:'https://images.unsplash.com/photo-1546519638-68e109498ffc?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p3', name:'Jersey Bola Pro', price: 500000, img:'https://i.pinimg.com/1200x/74/d4/0a/74d40a07b1254fcad19569c67278e15a.jpg'},
+      {id:'p4', name:'Matras Yoga Flex', price: 129000, img:'https://images.unsplash.com/photo-1518611012118-696072aa579a?q=80&w=1200&auto=format&fit=crop'},
+      {id:'p5', name:'Sarung Tangan Gym', price: 99000,  img:'https://i.pinimg.com/736x/f6/a7/9b/f6a79bf5271d09f4ce7219953e725150.jpg'},
+      {id:'p6', name:'Skipping Rope Steel', price: 99000, img:'https://i.pinimg.com/1200x/a6/bb/84/a6bb84b6edc60b5b1a74c8fef02017f6.jpg'},
+      {id:'p7', name:'Botol Minum 1L', price: 99000, img:'https://i.pinimg.com/1200x/b5/14/f4/b514f447ad3783a267b1f5b2806a6928.jpg'},
+      {id:'p8', name:'Tas Gym Pro 35L', price: 599000, img:'https://images.unsplash.com/photo-1558611848-73f7eb4001a1?q=80&w=1200&auto=format&fit=crop'}
+    ];
+
+    // ====== UTIL ======
+    const fmt = new Intl.NumberFormat('id-ID',{style:'currency',currency:'IDR',maximumFractionDigits:0});
+    const qs = s => document.querySelector(s);
+    const qsa = s => [...document.querySelectorAll(s)];
+    const save = (k,v)=>localStorage.setItem(k,JSON.stringify(v));
+    const load = (k,d)=>{try{return JSON.parse(localStorage.getItem(k)) ?? d}catch{return d}};
+
+    // ====== STATE KERANJANG ======
+    let cart = load('cart',{}); // {id: qty}
+
+    function cartCount(){return Object.values(cart).reduce((a,b)=>a+b,0)}
+    function cartSubtotal(){return Object.entries(cart).reduce((sum,[id,qty])=>{
+      const p = PRODUCTS.find(x=>x.id===id); return sum + (p?p.price*qty:0);
+    },0)}
+
+    function updateBadges(){
+      qs('#cartCount').textContent = cartCount();
+      qs('#cartSubtotal').textContent = fmt.format(cartSubtotal());
+      qs('#badgeTotal').textContent = 'Total: ' + fmt.format(cartSubtotal());
+      renderSummary();
+      save('cart',cart);
+    }
+
+    function addToCart(id,qty=1){
+      cart[id] = (cart[id]||0)+qty; updateBadges(); renderCart();
+      openCart();
+    }
+    function setQty(id,qty){
+      if(qty<=0){delete cart[id]} else {cart[id]=qty}
+      updateBadges(); renderCart();
+    }
+
+    // ====== RENDER PRODUK ======
+    function renderProducts(){
+      const grid = qs('#productGrid');
+      grid.innerHTML = PRODUCTS.map(p=>`
+        <article class="card" aria-label="${p.name}">
+          <img src="${p.img}" alt="${p.name}" loading="lazy"/>
+          <div class="card-body">
+            <div class="title">${p.name}</div>
+            <div class="price">${fmt.format(p.price)}</div>
+            <div class="muted">Stok cepat habis • Garansi 7 hari</div>
+            <div class="qty">
+              <span class="muted">Qty</span>
+              <button aria-label="kurangi" onclick="dec('${p.id}')">−</button>
+              <span id="qty-${p.id}">1</span>
+              <button aria-label="tambah" onclick="inc('${p.id}')">+</button>
+              <button class="btn add" onclick="buy('${p.id}')">Beli</button>
+            </div>
+          </div>
+        </article>`).join('');
+    }
+
+    // qty controls per-card (simple per-view state)
+    const qtyView = {}; PRODUCTS.forEach(p=>qtyView[p.id]=1);
+    window.inc = id => {qtyView[id]++; qs('#qty-'+id).textContent = qtyView[id]}
+    window.dec = id => {qtyView[id]=Math.max(1,qtyView[id]-1); qs('#qty-'+id).textContent = qtyView[id]}
+    window.buy = id => addToCart(id, qtyView[id])
+
+    // ====== CART PANEL ======
+    const panel = qs('#cartPanel');
+    function openCart(){panel.classList.add('open'); panel.setAttribute('aria-hidden','false')}
+    function closeCart(){panel.classList.remove('open'); panel.setAttribute('aria-hidden','true')}
+    qs('#openCart').onclick = openCart;
+    qs('#openCart2').onclick = openCart;
+    qs('#closeCart').onclick = closeCart;
+    qs('#toCheckout').onclick = ()=>{ closeCart(); document.location.hash = '#checkout'; }
+
+    function renderCart(){
+      const wrap = qs('#cartItems');
+      const entries = Object.entries(cart);
+      if(!entries.length){wrap.innerHTML = `<div class="empty">Keranjang kosong. Yuk belanja dulu 👟</div>`;return}
+      wrap.innerHTML = entries.map(([id,qty])=>{
+        const p = PRODUCTS.find(x=>x.id===id);
+        return `
+          <div class="cart-item">
+            <img src="${p.img}" alt="${p.name}"/>
+            <div>
+              <div class="ci-title">${p.name}</div>
+              <div class="muted">${fmt.format(p.price)} • Item</div>
+            </div>
+            <div class="ci-actions">
+              <button aria-label="kurangi" onclick="setQty('${id}', ${qty-1})">−</button>
+              <span>${qty}</span>
+              <button aria-label="tambah" onclick="setQty('${id}', ${qty+1})">+</button>
+              <button class="btn" onclick="setQty('${id}',0)">Hapus</button>
+            </div>
+          </div>`
+      }).join('');
+    }
+
+    // expose setQty for inline handlers
+    window.setQty = setQty;
+
+    // ====== CHECKOUT SUMMARY ======
+    function renderSummary(){
+      const wrap = qs('#summaryItems');
+      const entries = Object.entries(cart);
+      if(!entries.length){wrap.innerHTML = '<p class="muted">Keranjang masih kosong.</p>'; qs('#sumSubtotal').textContent = 'Rp0'; qs('#sumShip').textContent='Rp0'; qs('#sumTotal').textContent='Rp0'; return}
+      wrap.innerHTML = entries.map(([id,qty])=>{
+        const p = PRODUCTS.find(x=>x.id===id); const line = p.price*qty;
+        return `<div class="row"><span>${p.name} × ${qty}</span><span>${fmt.format(line)}</span></div>`
+      }).join('');
+      const sub = cartSubtotal();
+      const ship = sub>=250000?0:20000;
+      qs('#sumSubtotal').textContent = fmt.format(sub);
+      qs('#sumShip').textContent = fmt.format(ship);
+      qs('#sumTotal').textContent = fmt.format(sub+ship);
+    }
+
+    // ====== CHECKOUT FORM ======
+    qs('#checkoutForm').addEventListener('submit', (e)=>{
+      e.preventDefault();
+      if(!Object.keys(cart).length){alert('Keranjang masih kosong. Tambah produk dulu ya.'); return}
+      const data = Object.fromEntries(new FormData(e.target).entries());
+      // generate order code
+      const orderId = 'SP' + Math.random().toString(36).slice(2,8).toUpperCase();
+      const total = qs('#sumTotal').textContent;
+      const result = qs('#orderResult');
+      result.innerHTML = `<div class="success">🎉 Pesanan <strong>${orderId}</strong> berhasil dibuat untuk <strong>${data.nama}</strong>. Total ${total}. Rincian dikirim ke <strong>${data.email}</strong>. (Demo)</div>`;
+      // reset cart
+      cart = {}; save('cart',cart); updateBadges(); renderCart();
+      // optional: reset qty views
+      for(const id in qtyView){qtyView[id]=1; const el = qs('#qty-'+id); if(el) el.textContent = '1'}
+      e.target.reset();
+      // scroll to result
+      result.scrollIntoView({behavior:'smooth', block:'center'});
+    });
+
+    // ====== MISC ======
+    function smoothAnchor(){
+      qsa('a[href^="#"]').forEach(a=>{
+        a.addEventListener('click',e=>{ const id=a.getAttribute('href'); if(id.length>1){e.preventDefault(); document.querySelector(id).scrollIntoView({behavior:'smooth'}); history.pushState(null,'',id)} })
+      })
+    }
+
+    // INIT
+    renderProducts();
+    renderCart();
+    updateBadges();
+    smoothAnchor();
+  </script>
+</body>
+</html>
